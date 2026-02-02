@@ -89,7 +89,6 @@ export const GameInterface: React.FC<GameInterfaceProps> = ({
     const smallBtnSize = 'clamp(28px, 9vw, 32px)';
     const fontSizeNum = 'clamp(16px, 5vw, 24px)';
     const fontSizeLabel = 'clamp(8px, 2.5vw, 10px)';
-
     const centerClearance = 'clamp(45px, 13vw, 70px)';
 
     const circleBtnBaseStyle: React.CSSProperties = {
@@ -117,18 +116,22 @@ export const GameInterface: React.FC<GameInterfaceProps> = ({
                 bottom: 0,
                 left: 0,
                 width: '100%',
-                height: 'clamp(80px, 15vh, 90px)',
+
+                minHeight: 'clamp(80px, 15vh, 90px)',
+
+                paddingBottom: 'env(safe-area-inset-bottom, 20px)',
+
                 background: colors.bgDark,
                 backdropFilter: 'blur(4px)',
                 borderTop: '1px solid rgba(255,255,255,0.1)',
-
                 display: 'flex',
                 alignItems: 'center',
-                padding: 0,
-
+                paddingRight: '2%',
+                paddingLeft: '2%',
                 zIndex: 10,
                 fontFamily: 'Arial, sans-serif',
                 userSelect: 'none',
+                boxSizing: 'border-box',
             }}
         >
             <div
@@ -193,7 +196,9 @@ export const GameInterface: React.FC<GameInterfaceProps> = ({
                     position: 'absolute',
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    bottom: '10px',
+
+                    bottom: 'calc(10px + env(safe-area-inset-bottom, 0px))',
+
                     zIndex: 20,
                 }}
             >
@@ -311,7 +316,6 @@ export const GameInterface: React.FC<GameInterfaceProps> = ({
                         fontSize: '10px',
                         cursor: 'pointer',
                         flexShrink: 0,
-                        marginTop: '12px',
                     }}
                 >
                     {forceWin ? 'W' : '?'}
