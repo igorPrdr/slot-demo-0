@@ -1,6 +1,14 @@
 ﻿import { Assets, Sprite, Texture } from 'pixi.js';
 import type { ReelSymbol } from './types.ts';
 
+const resolve = (path: string) => {
+    const base = import.meta.env.BASE_URL;
+
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+
+    return `${base}${cleanPath}`;
+};
+
 export const SYMBOLS: Record<ReelSymbol, string> = {
     APPLE: 'apple.png',
     BLUEBERRY: 'blueberry.png',
@@ -28,11 +36,11 @@ const manifest = {
             assets: [
                 {
                     alias: 'symbols',
-                    src: '/assets/symbols.json',
+                    src: resolve('assets/symbols.json'), // Fixes the JSON path
                 },
-                { alias: 'FRAME', src: ASSETS.FRAME },
-                { alias: 'BACKGROUND', src: ASSETS.BACKGROUND },
-                { alias: 'DIVIDER', src: ASSETS.DIVIDER },
+                { alias: 'FRAME', src: resolve(ASSETS.FRAME) },
+                { alias: 'BACKGROUND', src: resolve(ASSETS.BACKGROUND) },
+                { alias: 'DIVIDER', src: resolve(ASSETS.DIVIDER) },
             ],
         },
     ],
