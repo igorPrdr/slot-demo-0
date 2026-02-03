@@ -19,7 +19,7 @@ export class ReelContainer extends Container {
     private _tweenValue = 0;
     private _lastTweenVal = 0;
 
-    private readonly BLUR_MULTIPLIER = 1.5 * (window.devicePixelRatio || 1);
+    private readonly BLUR_MULTIPLIER = 0.6;
 
     constructor(reelId: number, x: number) {
         super();
@@ -213,7 +213,7 @@ export class ReelContainer extends Container {
     private moveReel(amount: number) {
         const absAmount = Math.abs(amount);
 
-        if (absAmount > 5) {
+        if (absAmount > 7) {
             if (!this.filters) {
                 this.filters = [this._blur];
             }
