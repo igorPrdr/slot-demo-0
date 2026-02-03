@@ -1,4 +1,4 @@
-﻿import { Assets, Sprite, Texture } from 'pixi.js';
+﻿import { Assets, Sprite, Texture, TextureStyle } from 'pixi.js';
 import type { ReelSymbol } from './types.ts';
 
 const resolve = (path: string) => {
@@ -47,13 +47,29 @@ const manifest = {
 };
 
 export class AssetLoader {
+    private static textureCache = new Map<string, Texture>();
+
     static async init(): Promise<void> {
+        TextureStyle.defaultOptions.scaleMode = 'linear';
+        Assets.setPreferences({ preferWorkers: true });
         await Assets.init({ manifest });
         await Assets.loadBundle('game-screen');
     }
 
     static getSymbolTexture(name: string): Texture {
-        return Assets.get(name);
+        if (this.textureCache.has(name)) {
+            return this.textureCache.get(name)!;
+        }
+
+        const texture = Assets.get(name);
+
+        if (texture.source.style) {
+            texture.source.style.mipmap = 'on';
+        }
+
+        this.textureCache.set(name, texture);
+
+        return texture;
     }
 
     public static getSprite(alias: string): Sprite {
