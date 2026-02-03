@@ -39,7 +39,23 @@ const App = () => {
     }, [assetsLoaded]);
 
     if (!assetsLoaded) {
-        return <div className='loading'>Loading Assets...</div>;
+        return (
+            <div
+                style={{
+                    position: 'fixed',
+                    inset: 0,
+                    overflow: 'hidden',
+                    background: '#000',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: '100%',
+                    height: '100%',
+                }}
+            >
+                Loading Assets...
+            </div>
+        );
     }
 
     return (
