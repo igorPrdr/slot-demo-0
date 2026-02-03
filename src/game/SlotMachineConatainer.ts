@@ -20,21 +20,21 @@ export class SlotMachineContainer extends Container {
         bg.y = SLOT_CONFIG.CENTER_Y;
         reelContainer.addChild(bg);
 
+        for (let i = 1; i < SLOT_CONFIG.REEL_COUNT; i++) {
+            const xPos = i * (SLOT_CONFIG.SYMBOL_WIDTH + SLOT_CONFIG.REEL_GAP);
+            const divider = AssetLoader.getSprite('DIVIDER');
+            divider.anchor.set(0.5);
+            divider.scale.set(1 / 1.2);
+            divider.x = xPos - SLOT_CONFIG.REEL_GAP / 2;
+            divider.y = SLOT_CONFIG.CENTER_Y;
+            reelContainer.addChild(divider);
+        }
+
         this._paylines = new PaylinesContainer();
         reelContainer.addChild(this._paylines);
 
         for (let i = 0; i < SLOT_CONFIG.REEL_COUNT; i++) {
             const xPos = i * (SLOT_CONFIG.SYMBOL_WIDTH + SLOT_CONFIG.REEL_GAP);
-
-            if (i > 0) {
-                const divider = AssetLoader.getSprite('DIVIDER');
-                divider.anchor.set(0.5);
-                divider.scale.set(1 / 1.2);
-                divider.x = xPos - SLOT_CONFIG.REEL_GAP / 2;
-                divider.y = SLOT_CONFIG.CENTER_Y;
-                reelContainer.addChild(divider);
-            }
-
             const reel = new ReelContainer(i, xPos);
             reelContainer.addChild(reel);
             this._reels.push(reel);
