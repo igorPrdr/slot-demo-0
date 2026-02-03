@@ -9,13 +9,19 @@ interface BouncyButtonProps {
 
 const BouncyButton: React.FC<BouncyButtonProps> = ({ onClick, disabled, style, children }) => {
     const [isPressed, setIsPressed] = useState(false);
-    const handleDown = () => !disabled && setIsPressed(true);
+
+    const handleDown = () => {
+        if (disabled) return;
+        setIsPressed(true);
+    };
+
     const handleUp = () => {
         if (!disabled && isPressed) {
             setIsPressed(false);
             onClick();
         }
     };
+
     const handleLeave = () => setIsPressed(false);
 
     const transitionStyle = isPressed
@@ -29,16 +35,17 @@ const BouncyButton: React.FC<BouncyButtonProps> = ({ onClick, disabled, style, c
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.5 : 1,
         WebkitTapHighlightColor: 'transparent',
+        touchAction: 'manipulation',
+        userSelect: 'none',
+        pointerEvents: 'auto',
     };
 
     return (
         <button
             style={combinedStyle}
-            onMouseDown={handleDown}
-            onMouseUp={handleUp}
-            onMouseLeave={handleLeave}
-            onTouchStart={handleDown}
-            onTouchEnd={handleUp}
+            onPointerDown={handleDown}
+            onPointerUp={handleUp}
+            onPointerLeave={handleLeave}
             disabled={disabled}
         >
             {children}
@@ -113,188 +120,25 @@ export const GameInterface: React.FC<GameInterfaceProps> = ({
         <div
             style={{
                 position: 'absolute',
-                bottom: 0,
-                left: 0,
-                width: '100%',
-                minHeight: 'clamp(80px, 15vh, 90px)',
-                paddingBottom: 'env(safe-area-inset-bottom, 20px)',
-                background: colors.bgDark,
-                backdropFilter: 'blur(4px)',
-                borderTop: '1px solid rgba(255,255,255,0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                paddingRight: '2%',
-                paddingLeft: '2%',
+                inset: 0,
                 zIndex: 10,
+                pointerEvents: 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
                 fontFamily: 'Arial, sans-serif',
                 userSelect: 'none',
-                boxSizing: 'border-box',
+                overflow: 'hidden',
             }}
         >
             <div
                 style={{
-                    flex: 1,
                     display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'flex-end',
-                    paddingRight: centerClearance,
-                    minWidth: '0',
+                    justifyContent: 'flex-end',
+                    paddingTop: 'max(15px, env(safe-area-inset-top))',
+                    paddingRight: 'max(15px, env(safe-area-inset-right))',
                 }}
             >
-                <span
-                    style={{
-                        color: colors.textMuted,
-                        fontSize: fontSizeLabel,
-                        fontWeight: 'bold',
-                        letterSpacing: '1px',
-                        textTransform: 'uppercase',
-                    }}
-                >
-                    Total Bet
-                </span>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <div style={{ display: 'flex', gap: '2px' }}>
-                        <BouncyButton
-                            style={circleBtnBaseStyle}
-                            onClick={() => onAdjustBet(-5)}
-                            disabled={isSpinning}
-                        >
-                            &#8722;
-                        </BouncyButton>
-                    </div>
-
-                    <span
-                        style={{
-                            color: colors.textHighlight,
-                            fontSize: fontSizeNum,
-                            fontWeight: 'bold',
-                            minWidth: '30px',
-                            textAlign: 'center',
-                        }}
-                    >
-                        ${bet}
-                    </span>
-
-                    <div style={{ display: 'flex', gap: '2px' }}>
-                        <BouncyButton
-                            style={circleBtnBaseStyle}
-                            onClick={() => onAdjustBet(5)}
-                            disabled={isSpinning}
-                        >
-                            +
-                        </BouncyButton>
-                    </div>
-                </div>
-            </div>
-
-            <div
-                style={{
-                    position: 'absolute',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    bottom: 'calc(10px + env(safe-area-inset-bottom, 0px))',
-                    zIndex: 20,
-                }}
-            >
-                <BouncyButton
-                    onClick={onSpin}
-                    disabled={isSpinning || balance < bet}
-                    style={{
-                        width: spinBtnSize,
-                        height: spinBtnSize,
-                        borderRadius: '50%',
-                        background: isSpinning
-                            ? '#555'
-                            : `linear-gradient(180deg, ${colors.spinBtnStart}, ${colors.spinBtnEnd})`,
-                        color: 'white',
-                        border: '4px solid rgba(0,0,0,0.3)',
-                        boxShadow: isSpinning ? 'none' : '0 8px 15px rgba(0,0,0,0.5)',
-                        marginBottom: '15%',
-                        padding: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        paddingLeft: '4px',
-                    }}
-                >
-                    <div
-                        style={{
-                            filter: 'drop-shadow(0px 2px 2px rgba(0,0,0,0.3))',
-                            lineHeight: 0,
-                            transform: 'scale(0.8)',
-                        }}
-                    >
-                        <RoundedPlayIcon />
-                    </div>
-                </BouncyButton>
-            </div>
-
-            <div
-                style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    justifyContent: 'flex-start',
-                    paddingLeft: centerClearance,
-                    minWidth: '0',
-                }}
-            >
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        position: 'relative',
-                        alignItems: 'flex-start',
-                    }}
-                >
-                    <div
-                        style={{
-                            position: 'absolute',
-                            top: '-22px',
-                            left: 0,
-                            opacity: winAmount > 0 ? 1 : 0,
-                            transform: winAmount > 0 ? 'translateY(0)' : 'translateY(10px)',
-                            transition: 'all 0.3s ease-out',
-                            pointerEvents: 'none',
-                            whiteSpace: 'nowrap',
-                        }}
-                    >
-                        <span
-                            style={{
-                                color: colors.gold,
-                                fontSize: '16px',
-                                fontWeight: 'bold',
-                                textShadow: '0 2px 4px rgba(0,0,0,0.8)',
-                            }}
-                        >
-                            +${winAmount.toFixed(2)}
-                        </span>
-                    </div>
-
-                    <span
-                        style={{
-                            color: colors.textMuted,
-                            fontSize: fontSizeLabel,
-                            fontWeight: 'bold',
-                            letterSpacing: '1px',
-                            textTransform: 'uppercase',
-                        }}
-                    >
-                        Balance
-                    </span>
-                    <span
-                        style={{
-                            color: colors.textHighlight,
-                            fontSize: fontSizeNum,
-                            fontWeight: 'bold',
-                        }}
-                    >
-                        ${balance.toFixed(2)}
-                    </span>
-                </div>
-
                 <BouncyButton
                     onClick={() => onToggleForceWin(!forceWin)}
                     style={{
@@ -303,7 +147,7 @@ export const GameInterface: React.FC<GameInterfaceProps> = ({
                         padding: '4px 0',
                         background: forceWin
                             ? 'linear-gradient(135deg, #f1c40f 0%, #d4ac0d 100%)'
-                            : 'rgba(255,255,255,0.05)',
+                            : 'rgba(0, 0, 0, 0.6)',
                         border: forceWin
                             ? `1px solid ${colors.gold}`
                             : '1px solid rgba(255,255,255,0.15)',
@@ -315,13 +159,194 @@ export const GameInterface: React.FC<GameInterfaceProps> = ({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        flexShrink: 0,
                         boxShadow: forceWin ? '0 0 8px rgba(241, 196, 15, 0.4)' : 'none',
-                        transition: 'all 0.3s ease',
                     }}
                 >
                     {forceWin ? 'FORCE WIN' : 'DEBUG'}
                 </BouncyButton>
+            </div>
+
+            <div
+                style={{
+                    position: 'relative',
+                    width: '100%',
+                    minHeight: 'clamp(80px, 15vh, 90px)',
+                    paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 20px))',
+                    background: colors.bgDark,
+                    backdropFilter: 'blur(4px)',
+                    borderTop: '1px solid rgba(255,255,255,0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    paddingRight: '2%',
+                    paddingLeft: '2%',
+                    boxSizing: 'border-box',
+                    pointerEvents: 'auto',
+                }}
+            >
+                <div
+                    style={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-end',
+                        paddingRight: centerClearance,
+                        minWidth: '0',
+                    }}
+                >
+                    <span
+                        style={{
+                            color: colors.textMuted,
+                            fontSize: fontSizeLabel,
+                            fontWeight: 'bold',
+                            letterSpacing: '1px',
+                            textTransform: 'uppercase',
+                        }}
+                    >
+                        Total Bet
+                    </span>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <div style={{ display: 'flex', gap: '2px' }}>
+                            <BouncyButton
+                                style={circleBtnBaseStyle}
+                                onClick={() => onAdjustBet(-5)}
+                                disabled={isSpinning}
+                            >
+                                &#8722;
+                            </BouncyButton>
+                        </div>
+
+                        <span
+                            style={{
+                                color: colors.textHighlight,
+                                fontSize: fontSizeNum,
+                                fontWeight: 'bold',
+                                minWidth: '30px',
+                                textAlign: 'center',
+                            }}
+                        >
+                            ${bet}
+                        </span>
+
+                        <div style={{ display: 'flex', gap: '2px' }}>
+                            <BouncyButton
+                                style={circleBtnBaseStyle}
+                                onClick={() => onAdjustBet(5)}
+                                disabled={isSpinning}
+                            >
+                                +
+                            </BouncyButton>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    style={{
+                        position: 'absolute',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        bottom: 'calc(25px + env(safe-area-inset-bottom, 0px))',
+                        zIndex: 20,
+                    }}
+                >
+                    <BouncyButton
+                        onClick={onSpin}
+                        disabled={isSpinning || balance < bet}
+                        style={{
+                            width: spinBtnSize,
+                            height: spinBtnSize,
+                            borderRadius: '50%',
+                            background: isSpinning
+                                ? '#555'
+                                : `linear-gradient(180deg, ${colors.spinBtnStart}, ${colors.spinBtnEnd})`,
+                            color: 'white',
+                            border: '4px solid rgba(0,0,0,0.3)',
+                            boxShadow: isSpinning ? 'none' : '0 8px 15px rgba(0,0,0,0.5)',
+                            marginBottom: '15%',
+                            padding: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            paddingLeft: '4px',
+                        }}
+                    >
+                        <div
+                            style={{
+                                filter: 'drop-shadow(0px 2px 2px rgba(0,0,0,0.3))',
+                                lineHeight: 0,
+                                transform: 'scale(0.8)',
+                            }}
+                        >
+                            <RoundedPlayIcon />
+                        </div>
+                    </BouncyButton>
+                </div>
+
+                <div
+                    style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-start',
+                        paddingLeft: centerClearance,
+                        minWidth: '0',
+                    }}
+                >
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            position: 'relative',
+                            alignItems: 'flex-start',
+                        }}
+                    >
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: '-22px',
+                                left: 0,
+                                opacity: winAmount > 0 ? 1 : 0,
+                                transform: winAmount > 0 ? 'translateY(0)' : 'translateY(10px)',
+                                transition: 'all 0.3s ease-out',
+                                pointerEvents: 'none',
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            <span
+                                style={{
+                                    color: colors.gold,
+                                    fontSize: '18px',
+                                    fontWeight: 'bold',
+                                    textShadow:
+                                        '0 2px 2px rgba(0,0,0,0.8), 0 0 4px rgba(0,0,0,0.6)',
+                                }}
+                            >
+                                +${winAmount.toFixed(2)}
+                            </span>
+                        </div>
+
+                        <span
+                            style={{
+                                color: colors.textMuted,
+                                fontSize: fontSizeLabel,
+                                fontWeight: 'bold',
+                                letterSpacing: '1px',
+                                textTransform: 'uppercase',
+                            }}
+                        >
+                            Balance
+                        </span>
+                        <span
+                            style={{
+                                color: colors.textHighlight,
+                                fontSize: fontSizeNum,
+                                fontWeight: 'bold',
+                            }}
+                        >
+                            ${balance.toFixed(2)}
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     );
