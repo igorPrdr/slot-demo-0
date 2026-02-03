@@ -44,13 +44,14 @@ const App = () => {
 
     return (
         <div
-            className='game-wrapper'
             style={{
-                width: '100vw',
-                height: '100vh',
+                position: 'fixed',
+                inset: 0,
                 overflow: 'hidden',
-                position: 'relative',
                 background: '#000',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
             }}
         >
             <div
