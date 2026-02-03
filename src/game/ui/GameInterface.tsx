@@ -171,7 +171,7 @@ export const GameInterface: React.FC<GameInterfaceProps> = ({
                     position: 'relative',
                     width: '100%',
                     minHeight: 'clamp(80px, 15vh, 90px)',
-                    paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 20px))',
+                    paddingBottom: 'calc(10px + env(safe-area-inset-bottom, 20px))',
                     background: colors.bgDark,
                     backdropFilter: 'blur(4px)',
                     borderTop: '1px solid rgba(255,255,255,0.1)',
