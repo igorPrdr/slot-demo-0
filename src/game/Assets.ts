@@ -3,9 +3,7 @@ import type { ReelSymbol } from './types.ts';
 
 const resolve = (path: string) => {
     const base = import.meta.env.BASE_URL;
-
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-
     return `${base}${cleanPath}`;
 };
 
@@ -27,6 +25,7 @@ export const ASSETS = {
     FRAME: 'assets/slot_machine_frame.png',
     BACKGROUND: 'assets/slot_machine_background.png',
     DIVIDER: 'assets/reel_divider.png',
+    APP_BACKGROUND: 'assets/app_background.jpg',
 };
 
 const manifest = {
@@ -36,11 +35,12 @@ const manifest = {
             assets: [
                 {
                     alias: 'symbols',
-                    src: resolve('assets/symbols.json'), // Fixes the JSON path
+                    src: resolve('assets/symbols.json'),
                 },
                 { alias: 'FRAME', src: resolve(ASSETS.FRAME) },
                 { alias: 'BACKGROUND', src: resolve(ASSETS.BACKGROUND) },
                 { alias: 'DIVIDER', src: resolve(ASSETS.DIVIDER) },
+                { alias: 'APP_BACKGROUND', src: resolve(ASSETS.APP_BACKGROUND) },
             ],
         },
     ],
@@ -56,7 +56,6 @@ export class AssetLoader {
 
         for (const alias in resources) {
             const resource = resources[alias];
-
             if (resource instanceof Texture) {
                 resource.source.style.mipmap = 'pow2';
                 resource.source.update();
@@ -64,7 +63,7 @@ export class AssetLoader {
         }
     }
 
-    static getSymbolTexture(name: string): Texture {
+    static getTexture(name: string): Texture {
         return Assets.get(name);
     }
 

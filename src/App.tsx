@@ -4,12 +4,12 @@ import { useEffect, useRef, useState } from 'react';
 import { Application, extend } from '@pixi/react';
 import { Container, Sprite, Graphics, Ticker } from 'pixi.js';
 
-import bgImage from './assets/app_background.jpg';
 import { AssetLoader } from './game/Assets';
 import { SlotMachineContainer } from './game/SlotMachineConatainer.ts';
 import { useSlotMachine } from './game/useSlotMachine.ts';
 import { GameInterface } from './game/ui/GameInterface.tsx';
 import { useWindowResize } from './hooks/useWindowResize';
+import { BackgroundSprite } from './game/BackgroundSprite.tsx';
 
 extend({ Container, Sprite, Graphics });
 
@@ -70,23 +70,10 @@ const App = () => {
                 alignItems: 'center',
             }}
         >
-            <div
-                style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    backgroundImage: `url(${bgImage})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    filter: 'brightness(0.8)',
-                    zIndex: 0,
-                }}
-            />
             <div style={{ position: 'absolute', zIndex: 1 }}>
                 <Application
-                    backgroundAlpha={0}
+                    backgroundAlpha={1}
+                    backgroundColor={0x000000}
                     width={layout.width}
                     height={layout.height}
                     roundPixels={false}
@@ -94,11 +81,13 @@ const App = () => {
                     autoDensity={true}
                     antialias={false}
                 >
+                    <BackgroundSprite textureAlias={'APP_BACKGROUND'} />
                     <pixiContainer
                         scale={layout.scale}
                         x={layout.x}
                         y={layout.y}
                         pivot={{ x: DESIGN_WIDTH / 2, y: DESIGN_HEIGHT / 2 }}
+                        interactiveChildren={false}
                     >
                         <pixiContainer x={DESIGN_WIDTH / 2} y={DESIGN_HEIGHT / 2 - 14}>
                             <pixiContainer

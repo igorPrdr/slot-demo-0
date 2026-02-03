@@ -6,12 +6,12 @@ import type { ReelSymbol } from './types.ts';
 
 export class ReelSymbolContainer extends Container {
     private _mainSprite: Sprite;
-    private _glow: Sprite;
 
-    private _glareLayer: Container;
+    private _glow: Sprite | null = null;
+    private _glareLayer: Container | null = null;
+    private _particles: Container | null = null;
 
-    private _particles: Container;
-    private _textureId: string = '';
+    private _textureId: ReelSymbol | null = null;
     private _currentColor: number = 0xffffff;
 
     private _isSpecial = false;
@@ -20,42 +20,74 @@ export class ReelSymbolContainer extends Container {
     constructor() {
         super();
 
-        this._glow = new Sprite();
-        this._glow.anchor.set(0.5);
-        this._glow.scale.set(SLOT_CONFIG.SYMBOL_SCALE * 1.2);
-        this._glow.blendMode = 'add';
-        this._glow.alpha = 0;
-
-        const glowBlurFilter = new BlurFilter();
-        glowBlurFilter.strength = 15;
-        glowBlurFilter.quality = 3;
-        this._glow.filters = [glowBlurFilter];
-        this.addChild(this._glow);
-
         this._mainSprite = new Sprite();
         this._mainSprite.anchor.set(0.5);
         this._mainSprite.scale.set(SLOT_CONFIG.SYMBOL_SCALE);
         this.addChild(this._mainSprite);
+    }
 
-        this._glareLayer = new Container();
-        this.addChild(this._glareLayer);
+    private getGlow(): Sprite {
+        if (!this._glow) {
+            this._glow = new Sprite();
+            this._glow.anchor.set(0.5);
+            this._glow.scale.set(SLOT_CONFIG.SYMBOL_SCALE * 1.2);
+            this._glow.blendMode = 'add';
+            this._glow.alpha = 0;
 
-        this._particles = new Container();
-        this.addChild(this._particles);
+            const glowBlurFilter = new BlurFilter();
+            glowBlurFilter.strength = 15;
+            glowBlurFilter.quality = 2; // Optimization: Drop quality slightly for mobile
+            this._glow.filters = [glowBlurFilter];
+
+            if (this._textureId) {
+                this._glow.texture = AssetLoader.getTexture(SYMBOLS[this._textureId]);
+                this._glow.tint = this._currentColor;
+            }
+
+            this.addChildAt(this._glow, 0);
+        }
+
+        if (!this._glow.parent) {
+            this.addChildAt(this._glow, 0);
+        }
+
+        return this._glow;
+    }
+
+    private getGlareLayer(): Container {
+        if (!this._glareLayer) {
+            this._glareLayer = new Container();
+            this.addChild(this._glareLayer);
+        } else if (!this._glareLayer.parent) {
+            this.addChild(this._glareLayer);
+        }
+        return this._glareLayer;
+    }
+
+    private getParticles(): Container {
+        if (!this._particles) {
+            this._particles = new Container();
+            this.addChild(this._particles);
+        } else if (!this._particles.parent) {
+            this.addChild(this._particles);
+        }
+        return this._particles;
     }
 
     public setTexture(textureId: ReelSymbol) {
         if (this._textureId === textureId) return;
 
         this._textureId = textureId;
-        const tex = AssetLoader.getSymbolTexture(SYMBOLS[textureId]);
+        const tex = AssetLoader.getTexture(SYMBOLS[textureId]);
 
         this._mainSprite.texture = tex;
-        this._glow.texture = tex;
+
+        if (this._glow) {
+            this._glow.texture = tex;
+            this._glow.tint = SYMBOL_COLORS[textureId] || 0xffffff;
+        }
 
         this._currentColor = SYMBOL_COLORS[textureId] || 0xffffff;
-        this._glow.tint = this._currentColor;
-
         this._isSpecial = ReelSymbolContainer.SPECIAL_SYMBOLS.includes(textureId);
 
         this.reset();
@@ -67,6 +99,7 @@ export class ReelSymbolContainer extends Container {
 
         gsap.killTweensOf(this._mainSprite.scale);
         this._mainSprite.scale.set(baseScale);
+
         gsap.to(this._mainSprite.scale, {
             x: baseScale * 1.1,
             y: baseScale * 1.1,
@@ -87,28 +120,30 @@ export class ReelSymbolContainer extends Container {
     }
 
     private playSustainedGlow(baseScale: number) {
-        gsap.killTweensOf(this._glow);
-        gsap.killTweensOf(this._glow.scale);
+        const glow = this.getGlow();
 
-        this._glow.alpha = 0;
-        this._glow.scale.set(baseScale * 1.2);
+        gsap.killTweensOf(glow);
+        gsap.killTweensOf(glow.scale);
 
-        gsap.to(this._glow, { alpha: 1, duration: 0.1, ease: 'power2.out' });
+        glow.alpha = 0;
+        glow.scale.set(baseScale * 1.2);
 
-        gsap.to(this._glow.scale, {
+        gsap.to(glow, { alpha: 1, duration: 0.1, ease: 'power2.out' });
+
+        gsap.to(glow.scale, {
             x: baseScale * 1.5,
             y: baseScale * 1.5,
             duration: 0.2,
             ease: 'back.out(1.1)',
             onComplete: () => {
-                gsap.to(this._glow, { alpha: 0.5, duration: 0.5, ease: 'sine.out' });
-                gsap.to(this._glow.scale, {
+                gsap.to(glow, { alpha: 0.5, duration: 0.5, ease: 'sine.out' });
+                gsap.to(glow.scale, {
                     x: baseScale * 1.15,
                     y: baseScale * 1.15,
                     duration: 0.5,
                     ease: 'sine.out',
                     onComplete: () => {
-                        gsap.to(this._glow, {
+                        gsap.to(glow, {
                             alpha: 0.3,
                             duration: 1.5,
                             yoyo: true,
@@ -123,25 +158,36 @@ export class ReelSymbolContainer extends Container {
 
     public reset() {
         gsap.killTweensOf(this._mainSprite.scale);
-        gsap.killTweensOf(this._glow);
-        gsap.killTweensOf(this._glow.scale);
-
         this._mainSprite.scale.set(SLOT_CONFIG.SYMBOL_SCALE);
-        this._glow.scale.set(SLOT_CONFIG.SYMBOL_SCALE * 1.2);
 
-        this._glareLayer.removeChildren();
-        this._particles.removeChildren();
+        if (this._glow) {
+            gsap.killTweensOf(this._glow);
+            gsap.killTweensOf(this._glow.scale);
+        }
+
+        if (this._particles) {
+            this._particles.removeChildren();
+            if (this._particles.parent) this.removeChild(this._particles);
+        }
+
+        if (this._glareLayer) {
+            this._glareLayer.removeChildren();
+            if (this._glareLayer.parent) this.removeChild(this._glareLayer);
+        }
 
         if (this._isSpecial) {
             this.startSpecialIdle();
         } else {
-            this._glow.alpha = 0;
+            if (this._glow && this._glow.parent) {
+                this.removeChild(this._glow);
+            }
         }
     }
 
     private playGlare() {
-        const glare = new Graphics();
+        const layer = this.getGlareLayer();
 
+        const glare = new Graphics();
         glare.rect(-60, -2, 120, 4).fill(0xffffff);
         glare.rect(-2, -50, 4, 100).fill(0xffffff);
         glare.circle(0, 0, 15).fill({ color: 0xffffff, alpha: 0.8 });
@@ -151,7 +197,7 @@ export class ReelSymbolContainer extends Container {
         glare.rotation = Math.random() * Math.PI;
         glare.blendMode = 'add';
 
-        this._glareLayer.addChild(glare);
+        layer.addChild(glare);
 
         const tl = gsap.timeline({ onComplete: () => glare.destroy() });
         tl.to(glare, { alpha: 1, scale: 1.5, duration: 0.1, ease: 'power2.out' }).to(glare, {
@@ -164,10 +210,11 @@ export class ReelSymbolContainer extends Container {
     }
 
     private emitSparkles(count: number) {
+        const container = this.getParticles();
+
         for (let i = 0; i < count; i++) {
             const star = new Graphics();
             star.fill(this._currentColor);
-
             star.poly([0, -10, 3, 0, 0, 10, -3, 0]);
             star.fill();
 
@@ -175,10 +222,10 @@ export class ReelSymbolContainer extends Container {
             const dist = Math.random() * 45;
             star.x = Math.cos(angle) * dist;
             star.y = Math.sin(angle) * dist;
-
             star.scale.set(0);
             star.rotation = Math.random() * Math.PI;
-            this._particles.addChild(star);
+
+            container.addChild(star);
 
             const delay = Math.random() * 0.2;
             const duration = 0.4 + Math.random() * 0.4;
@@ -202,9 +249,10 @@ export class ReelSymbolContainer extends Container {
     }
 
     private emitSimpleParticles(count: number) {
+        const container = this.getParticles();
+
         for (let i = 0; i < count; i++) {
             const p = new Graphics();
-
             const isShard = Math.random() > 0.5;
 
             if (isShard) {
@@ -219,11 +267,10 @@ export class ReelSymbolContainer extends Container {
             p.y = (Math.random() - 0.5) * 10;
             p.rotation = Math.random() * Math.PI * 2;
 
-            this._particles.addChild(p);
+            container.addChild(p);
 
             const angle = Math.random() * Math.PI * 2;
             const velocity = 30 + Math.random() * 50;
-
             const targetX = Math.cos(angle) * velocity;
             const targetY = Math.sin(angle) * velocity;
 
@@ -250,18 +297,20 @@ export class ReelSymbolContainer extends Container {
 
     private startSpecialIdle() {
         this.stopEffects();
-        this._glow.alpha = 0.2;
-        const baseGlowScale = SLOT_CONFIG.SYMBOL_SCALE * 1.15;
-        this._glow.scale.set(baseGlowScale);
+        const glow = this.getGlow(); // Init here
 
-        gsap.to(this._glow, {
+        glow.alpha = 0.2;
+        const baseGlowScale = SLOT_CONFIG.SYMBOL_SCALE * 1.15;
+        glow.scale.set(baseGlowScale);
+
+        gsap.to(glow, {
             alpha: 0.5,
             duration: 1.5,
             yoyo: true,
             repeat: -1,
             ease: 'sine.inOut',
         });
-        gsap.to(this._glow.scale, {
+        gsap.to(glow.scale, {
             x: baseGlowScale * 1.05,
             y: baseGlowScale * 1.05,
             duration: 1.5,
@@ -272,8 +321,10 @@ export class ReelSymbolContainer extends Container {
     }
 
     private stopEffects() {
-        gsap.killTweensOf(this._glow);
-        gsap.killTweensOf(this._glow.scale);
-        this._glow.alpha = 0;
+        if (this._glow) {
+            gsap.killTweensOf(this._glow);
+            gsap.killTweensOf(this._glow.scale);
+            this._glow.alpha = 0;
+        }
     }
 }
