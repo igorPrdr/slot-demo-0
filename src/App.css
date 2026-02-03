@@ -1,4 +1,19 @@
-﻿canvas {
+﻿html, body, #root {
+    height: 100vh;
+    height: 100dvh;
+
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #000;
+
+    position: fixed;
+    inset: 0;
+}
+
+
+canvas {
     image-rendering: auto;
     transform: translateZ(0);
 }
