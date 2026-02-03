@@ -90,7 +90,7 @@ const App = () => {
                     width={layout.width}
                     height={layout.height}
                     roundPixels={false}
-                    resolution={window.devicePixelRatio || 1}
+                    resolution={Math.min(window.devicePixelRatio, 2)}
                     autoDensity={true}
                     antialias={false}
                 >

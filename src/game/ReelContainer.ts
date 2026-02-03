@@ -37,7 +37,8 @@ export class ReelContainer extends Container {
             this._symbols.push(symbol);
         }
 
-        this._blur.quality = 3;
+        this._blur.quality = 1;
+        this._blur.resolution = 1;
         this._blur.strengthX = 0;
         this._blur.strengthY = 0;
     }
