@@ -1,3 +1,5 @@
+import './App.css';
+
 import { useEffect, useRef, useState } from 'react';
 import { Application, extend } from '@pixi/react';
 import { Container, Sprite, Graphics, Ticker } from 'pixi.js';
@@ -70,8 +72,10 @@ const App = () => {
                     backgroundAlpha={0}
                     width={layout.width}
                     height={layout.height}
+                    roundPixels={false}
                     resolution={window.devicePixelRatio || 1}
                     autoDensity={true}
+                    antialias={false}
                 >
                     <pixiContainer
                         scale={layout.scale}
