@@ -19,6 +19,8 @@ export class ReelContainer extends Container {
     private _tweenValue = 0;
     private _lastTweenVal = 0;
 
+    private readonly BLUR_MULTIPLIER = 1.5 * (window.devicePixelRatio || 1);
+
     constructor(reelId: number, x: number) {
         super();
         this.x = x;
@@ -35,6 +37,7 @@ export class ReelContainer extends Container {
             this._symbols.push(symbol);
         }
 
+        this._blur.quality = 3;
         this._blur.strengthX = 0;
         this._blur.strengthY = 0;
     }
@@ -42,7 +45,7 @@ export class ReelContainer extends Container {
     public spin() {
         this.isSpinning = true;
         this._braking = false;
-        this.filters = [this._blur];
+
         this._speed = 0;
         gsap.to(this, { _speed: 40, duration: 0.1, ease: 'power2.in' });
     }
@@ -208,9 +211,15 @@ export class ReelContainer extends Container {
     }
 
     private moveReel(amount: number) {
-        if (Math.abs(amount) > 2) {
-            this._blur.strengthY = (Math.abs(amount) - 2) * 1.2;
+        const absAmount = Math.abs(amount);
+
+        if (absAmount > 5) {
+            if (!this.filters) {
+                this.filters = [this._blur];
+            }
+            this._blur.strengthY = absAmount * this.BLUR_MULTIPLIER;
         } else {
+            this.filters = null;
             this._blur.strengthY = 0;
         }
 
