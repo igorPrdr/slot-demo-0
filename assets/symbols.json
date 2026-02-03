@@ -271,8 +271,8 @@
     "image": "symbols.png",
     "format": "RGBA8888",
     "size": {
-      "w": 1032,
-      "h": 774
+      "w": 2048,
+      "h": 1024
     },
     "scale": 1
   }
