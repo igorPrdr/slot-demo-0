@@ -47,29 +47,25 @@ const manifest = {
 };
 
 export class AssetLoader {
-    private static textureCache = new Map<string, Texture>();
-
     static async init(): Promise<void> {
         TextureStyle.defaultOptions.scaleMode = 'linear';
-        Assets.setPreferences({ preferWorkers: true });
+
         await Assets.init({ manifest });
-        await Assets.loadBundle('game-screen');
+
+        const resources = await Assets.loadBundle('game-screen');
+
+        for (const alias in resources) {
+            const resource = resources[alias];
+
+            if (resource instanceof Texture) {
+                resource.source.style.mipmap = 'pow2';
+                resource.source.update();
+            }
+        }
     }
 
     static getSymbolTexture(name: string): Texture {
-        if (this.textureCache.has(name)) {
-            return this.textureCache.get(name)!;
-        }
-
-        const texture = Assets.get(name);
-
-        if (texture.source.style) {
-            texture.source.style.mipmap = 'on';
-        }
-
-        this.textureCache.set(name, texture);
-
-        return texture;
+        return Assets.get(name);
     }
 
     public static getSprite(alias: string): Sprite {
