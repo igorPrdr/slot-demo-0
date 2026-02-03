@@ -24,7 +24,7 @@ const BouncyButton: React.FC<BouncyButtonProps> = ({ onClick, disabled, style, c
 
     const combinedStyle: React.CSSProperties = {
         ...style,
-        transform: isPressed ? 'scale(0.85)' : 'scale(1)',
+        transform: isPressed ? 'scale(0.9)' : 'scale(1)',
         transition: transitionStyle,
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.5 : 1,
@@ -116,11 +116,8 @@ export const GameInterface: React.FC<GameInterfaceProps> = ({
                 bottom: 0,
                 left: 0,
                 width: '100%',
-
                 minHeight: 'clamp(80px, 15vh, 90px)',
-
                 paddingBottom: 'env(safe-area-inset-bottom, 20px)',
-
                 background: colors.bgDark,
                 backdropFilter: 'blur(4px)',
                 borderTop: '1px solid rgba(255,255,255,0.1)',
@@ -196,9 +193,7 @@ export const GameInterface: React.FC<GameInterfaceProps> = ({
                     position: 'absolute',
                     left: '50%',
                     transform: 'translateX(-50%)',
-
                     bottom: 'calc(10px + env(safe-area-inset-bottom, 0px))',
-
                     zIndex: 20,
                 }}
             >
@@ -240,7 +235,7 @@ export const GameInterface: React.FC<GameInterfaceProps> = ({
                     flex: 1,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
+                    gap: '12px',
                     justifyContent: 'flex-start',
                     paddingLeft: centerClearance,
                     minWidth: '0',
@@ -300,26 +295,33 @@ export const GameInterface: React.FC<GameInterfaceProps> = ({
                     </span>
                 </div>
 
-                <div
+                <BouncyButton
                     onClick={() => onToggleForceWin(!forceWin)}
                     style={{
-                        width: '24px',
-                        height: '24px',
-                        borderRadius: '50%',
-                        background: forceWin ? colors.gold : 'rgba(255,255,255,0.1)',
-                        border: forceWin ? 'none' : '1px solid rgba(255,255,255,0.2)',
+                        width: '75px',
+                        borderRadius: '12px',
+                        padding: '4px 0',
+                        background: forceWin
+                            ? 'linear-gradient(135deg, #f1c40f 0%, #d4ac0d 100%)'
+                            : 'rgba(255,255,255,0.05)',
+                        border: forceWin
+                            ? `1px solid ${colors.gold}`
+                            : '1px solid rgba(255,255,255,0.15)',
+                        color: forceWin ? '#000' : colors.textMuted,
+                        fontSize: '9px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: forceWin ? '#000' : '#888',
-                        fontWeight: 'bold',
-                        fontSize: '10px',
-                        cursor: 'pointer',
                         flexShrink: 0,
+                        boxShadow: forceWin ? '0 0 8px rgba(241, 196, 15, 0.4)' : 'none',
+                        transition: 'all 0.3s ease',
                     }}
                 >
-                    {forceWin ? 'W' : '?'}
-                </div>
+                    {forceWin ? 'FORCE WIN' : 'DEBUG'}
+                </BouncyButton>
             </div>
         </div>
     );
