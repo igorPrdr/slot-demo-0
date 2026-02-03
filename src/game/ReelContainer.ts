@@ -19,7 +19,7 @@ export class ReelContainer extends Container {
     private _tweenValue = 0;
     private _lastTweenVal = 0;
 
-    private readonly BLUR_MULTIPLIER = 0.3;
+    private readonly BLUR_MULTIPLIER = 0.2;
 
     constructor(reelId: number, x: number) {
         super();
@@ -212,13 +212,14 @@ export class ReelContainer extends Container {
     }
 
     private moveReel(amount: number) {
-        const absAmount = Math.abs(amount);
+        const absSpeed = Math.abs(this._speed);
 
-        if (absAmount > 9) {
+        if (absSpeed > 6) {
             if (!this.filters) {
                 this.filters = [this._blur];
             }
-            this._blur.strengthY = absAmount * this.BLUR_MULTIPLIER;
+
+            this._blur.strengthY = absSpeed * this.BLUR_MULTIPLIER;
         } else {
             this.filters = null;
             this._blur.strengthY = 0;
