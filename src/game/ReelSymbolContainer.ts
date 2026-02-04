@@ -36,7 +36,7 @@ export class ReelSymbolContainer extends Container {
 
             const glowBlurFilter = new BlurFilter();
             glowBlurFilter.strength = 15;
-            glowBlurFilter.quality = 2; // Optimization: Drop quality slightly for mobile
+            glowBlurFilter.quality = 2;
             this._glow.filters = [glowBlurFilter];
 
             if (this._textureId) {
@@ -297,7 +297,7 @@ export class ReelSymbolContainer extends Container {
 
     private startSpecialIdle() {
         this.stopEffects();
-        const glow = this.getGlow(); // Init here
+        const glow = this.getGlow();
 
         glow.alpha = 0.2;
         const baseGlowScale = SLOT_CONFIG.SYMBOL_SCALE * 1.15;

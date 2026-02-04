@@ -74,10 +74,10 @@ export class SlotMachineContainer extends Container {
 
         this._reels.forEach((reel, index) => {
             if (index === 0) {
-                accumulatedDelay = Math.random() * 1000;
+                accumulatedDelay = Math.random() * 800;
             } else {
-                const suspense = Math.random() * 1500 * index;
-                accumulatedDelay += 1000 + suspense;
+                const suspense = Math.random() * 1200 * index;
+                accumulatedDelay += 400 + suspense;
             }
 
             const p = new Promise<void>((resolve) => {

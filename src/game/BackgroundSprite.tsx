@@ -9,16 +9,33 @@ interface BackgroundSpriteProps {
 export const BackgroundSprite: React.FC<BackgroundSpriteProps> = ({ textureAlias }) => {
     const application = useApplication();
     const texture = useMemo(() => Texture.from(textureAlias), [textureAlias]);
-    const { width: screenWidth, height: screenHeight } = application.app.screen;
-    const scale = Math.max(screenWidth / texture.width, screenHeight / texture.height);
+    const layout = useMemo(() => {
+        const app = application?.app;
+
+        const isReady = app && app.renderer;
+
+        const screenWidth = isReady ? app.screen.width : 0;
+        const screenHeight = isReady ? app.screen.height : 0;
+
+        const texWidth = texture.width > 0 ? texture.width : 1;
+        const texHeight = texture.height > 0 ? texture.height : 1;
+
+        const scale = Math.max(screenWidth / texWidth, screenHeight / texHeight);
+
+        return {
+            x: screenWidth / 2,
+            y: screenHeight / 2,
+            scale: scale,
+        };
+    }, [application, texture.width, texture.height]);
 
     return (
         <pixiSprite
             texture={texture}
             anchor={0.5}
-            x={screenWidth / 2}
-            y={screenHeight / 2}
-            scale={scale}
+            x={layout.x}
+            y={layout.y}
+            scale={layout.scale}
             tint={0xcccccc}
         />
     );

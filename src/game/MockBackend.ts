@@ -37,7 +37,7 @@ export class MockBackend {
                 }
 
                 resolve(result);
-            }, 300);
+            }, 150);
         });
     }
 
